@@ -1,28 +1,54 @@
-name: Unzip site release
+name: Unpack site zip
 
 on:
-  push:
+  workflow_dispatch:            # adds the "Run workflow" button
+    inputs:
+      zip:
+        description: "Zip filename (optional). Leave blank to use newest *.release.zip"
+        required: false
+  push:                         # also auto-run on push
+    branches: [ "*" ]           # any branch
     paths:
-      - "*.release.zip"
+      - "*.release.zip"         # zip must be in repo root
+      - ".github/workflows/unzip.yml"
+
+permissions:
+  contents: write
 
 jobs:
   unzip:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
 
-      - name: Unzip latest release
+      - name: Pick zip
+        id: pick
+        shell: bash
         run: |
-          FILE=$(ls -t *.release.zip | head -n1)
-          echo "Unzipping $FILE..."
-          unzip -o "$FILE" -d .
-          rm "$FILE"
+          set -e
+          FILE="${{ github.event.inputs.zip }}"
+          if [ -z "$FILE" ]; then
+            FILE=$(ls -t *.release.zip 2>/dev/null | head -n1 || true)
+          fi
+          if [ -z "$FILE" ]; then
+            echo "No *.release.zip found in repo root"; exit 1
+          fi
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+          echo "Using: $FILE"
+
+      - name: Unzip into repo root
+        run: |
+          unzip -o "${{ steps.pick.outputs.file }}" -d .
+          rm -f "${{ steps.pick.outputs.file }}"
 
       - name: Commit unzipped site
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Unpacked site release" || echo "No changes to commit"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"; exit 0
+          fi
+          git commit -m "Unpacked ${{ steps.pick.outputs.file }}"
           git push
