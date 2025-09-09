@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Admin · Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="card">
+  <h1>Admin</h1>
+  <p class="micro muted">Static-site helper: update events, artists, images, and videos. To publish, download <code>events.json</code> and upload to <code>/data/events.json</code> in your host.</p>
+  <label class="field">
+    <span>Password</span>
+    <input type="password" id="pw" placeholder="Enter admin password">
+  </label>
+  <button class="btn" id="unlock">Unlock</button>
+</section>
+
+<section class="card" id="editor" hidden>
+  <h2>Events JSON</h2>
+  <textarea id="json" rows="20" spellcheck="false"></textarea>
+  <div class="cta-row">
+    <button class="btn" id="download">Download events.json</button>
+    <button class="btn ghost" id="prettify">Prettify</button>
+    <button class="btn ghost" id="validate">Validate</button>
+  </div>
+</section>
+
+<section class="card" id="event-builder" hidden>
+  <h2>New / Edit Event</h2>
+  <div class="grid two">
+    <label class="field"><span>Title</span><input id="ev-title" placeholder="Sound.wav Sessions — Fall 2025"></label>
+    <label class="field"><span>Slug</span><input id="ev-slug" placeholder="fall-2025"></label>
+    <label class="field"><span>Date & time (ISO)</span><input id="ev-date" placeholder="2025-10-18T19:00:00-05:00"></label>
+    <label class="field"><span>Venue</span><input id="ev-venue" placeholder="Liederkranz Ballroom"></label>
+    <label class="field"><span>Status</span>
+      <select id="ev-status">
+        <option value="open">open</option>
+        <option value="closed">closed</option>
+      </select>
+    </label>
+    <label class="field"><span>Performer Form URL</span><input id="ev-form" placeholder="https://docs.google.com/forms/..."></label>
+  </div>
+
+  <label class="field"><span>Poster URL</span><input id="ev-poster" placeholder="assets/archive/2024-07-26-jackson.jpg"></label>
+  <label class="field"><span>Description</span><textarea id="ev-desc" rows="3"></textarea></label>
+
+  <h3>Artists</h3>
+  <div id="artists-wrap" class="stack"></div>
+  <button class="btn ghost" id="add-artist">+ Add artist</button>
+
+  <h3>Media</h3>
+  <p class="micro muted">Supported: <code>youtube</code> (id), <code>image</code> (src + label), or <code>link</code> (url + label).</p>
+  <div id="media-wrap" class="stack"></div>
+  <button class="btn ghost" id="add-media">+ Add media</button>
+
+  <h3>Per-show form</h3>
+  <p class="micro muted">If you set a Google Apps Script endpoint in <code>data/config.json</code>, tap below to clone your base performer form for this event.</p>
+  <button class="btn" id="clone-form">Clone base performer form</button>
+  <div id="clone-output" class="micro muted" style="margin-top:8px"></div>
+
+  <div class="cta-row" style="margin-top:12px">
+    <button class="btn" id="insert-event">Insert/Update Event</button>
+    <button class="btn ghost" id="close-event">Close Event</button>
+  </div>
+</section>
+
+<script>
+const PASS_HASH = "sha256-PLACEHOLDER";
+async function sha(txt){
+  const enc = new TextEncoder().encode(txt);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return 'sha256-' + Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+let CONFIG = {};
+fetch('data/config.json').then(r=>r.json()).then(cfg=> CONFIG = cfg).catch(()=>{});
+
+document.getElementById('unlock').addEventListener('click', async ()=>{
+  const ok = await sha(document.getElementById('pw').value);
+  if (PASS_HASH === "sha256-PLACEHOLDER" || ok === PASS_HASH){
+    document.getElementById('editor').hidden = false;
+    document.getElementById('event-builder').hidden = false;
+    fetch('data/events.json').then(r=>r.json()).then(j=>{
+      document.getElementById('json').value = JSON.stringify(j, null, 2);
+    });
+  } else {
+    alert('Incorrect password.');
+  }
+});
+document.getElementById('prettify').addEventListener('click', ()=>{
+  try{ const v = JSON.parse(document.getElementById('json').value);
+       document.getElementById('json').value = JSON.stringify(v, null, 2);
+  }catch(e){ alert('Invalid JSON: ' + e.message); }
+});
+document.getElementById('validate').addEventListener('click', ()=>{
+  try{ JSON.parse(document.getElementById('json').value); alert('Looks valid ✅'); }
+  catch(e){ alert('Invalid JSON: ' + e.message); }
+});
+document.getElementById('download').addEventListener('click', ()=>{
+  const blob = new Blob([document.getElementById('json').value], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'events.json' });
+  a.click(); URL.revokeObjectURL(url);
+});
+
+function getJSON(){ try { return JSON.parse(document.getElementById('json').value || '{"events":[]}'); } catch { return {"events": []}; } }
+function setJSON(obj){ document.getElementById('json').value = JSON.stringify(obj, null, 2); }
+
+function artistRow(a={name:"",bandcamp:"",linktree:"",website:"",bio:""}){
+  const div = document.createElement('div'); div.className='list-item';
+  div.innerHTML = `
+    <div class="grow">
+      <input placeholder="Name" value="${a.name||''}">
+      <input placeholder="Bandcamp URL" value="${a.bandcamp||''}">
+      <input placeholder="Linktree URL" value="${a.linktree||''}">
+      <input placeholder="Website URL" value="${a.website||''}">
+      <input placeholder="Bio (short)" value="${a.bio||''}">
+    </div>
+    <button class="btn ghost">Remove</button>`;
+  div.querySelector('button').onclick = ()=> div.remove();
+  return div;
+}
+function mediaRow(m={type:"image",id:"",url:"",src:"",label:""}){
+  const div = document.createElement('div'); div.className='list-item';
+  div.innerHTML = `
+    <div class="grow">
+      <select>
+        <option ${m.type==='youtube'?'selected':''}>youtube</option>
+        <option ${m.type==='image'?'selected':''}>image</option>
+        <option ${m.type==='link'?'selected':''}>link</option>
+      </select>
+      <input placeholder="id/src/url" value="${m.id||m.src||m.url||''}">
+      <input placeholder="label (optional)" value="${m.label||''}">
+    </div>
+    <button class="btn ghost">Remove</button>`;
+  div.querySelector('button').onclick = ()=> div.remove();
+  return div;
+}
+document.getElementById('add-artist').onclick = ()=> document.getElementById('artists-wrap').appendChild(artistRow());
+document.getElementById('add-media').onclick = ()=> document.getElementById('media-wrap').appendChild(mediaRow());
+
+function collectArtists(){
+  return [...document.querySelectorAll('#artists-wrap .list-item')].map(div=>{
+    const [name,bandcamp,linktree,website,bio] = div.querySelectorAll('input');
+    return { name: name.value.trim(), bandcamp: bandcamp.value.trim(), linktree: linktree.value.trim(), website: website.value.trim(), bio: bio.value.trim() };
+  }).filter(a=>a.name);
+}
+function collectMedia(){
+  return [...document.querySelectorAll('#media-wrap .list-item')].map(div=>{
+    const [typeSel, field, label] = div.querySelectorAll('select, input');
+    const t = typeSel.value;
+    if (t==='youtube') return { type:'youtube', id: field.value.trim() };
+    if (t==='image') return { type:'image', src: field.value.trim(), label: label.value.trim() };
+    return { type:'link', url: field.value.trim(), label: label.value.trim() };
+  }).filter(m=> (m.type==='youtube'? m.id : (m.type==='image'? m.src : m.url)));
+}
+function upsertEvent(){
+  const ev = {
+    slug: document.getElementById('ev-slug').value.trim(),
+    title: document.getElementById('ev-title').value.trim(),
+    date: document.getElementById('ev-date').value.trim(),
+    venue: document.getElementById('ev-venue').value.trim(),
+    status: document.getElementById('ev-status').value,
+    formUrl: document.getElementById('ev-form').value.trim(),
+    poster: document.getElementById('ev-poster').value.trim(),
+    description: document.getElementById('ev-desc').value.trim(),
+    artists: collectArtists(),
+    media: collectMedia()
+  };
+  if (!ev.slug){ alert('Slug required'); return; }
+  const j = getJSON();
+  const i = (j.events||[]).findIndex(e=>e.slug===ev.slug);
+  if (i>=0) j.events[i] = ev; else (j.events||(j.events=[])).push(ev);
+  setJSON(j);
+  alert('Event saved into JSON below. Click "Download events.json" to publish.');
+}
+function closeEvent(){
+  const slug = document.getElementById('ev-slug').value.trim();
+  if (!slug) return alert('Enter slug to close.');
+  const j = getJSON();
+  const e = (j.events||[]).find(e=>e.slug===slug);
+  if (!e) return alert('Event not found.');
+  e.status = 'closed';
+  setJSON(j);
+  alert('Event closed. Download & upload events.json to publish.');
+}
+document.getElementById('insert-event').onclick = upsertEvent;
+document.getElementById('close-event').onclick = closeEvent;
+
+// Clone base performer form via Apps Script endpoint in config.json
+document.getElementById('clone-form').addEventListener('click', async () => {
+  const title = document.getElementById('ev-title').value.trim();
+  const date = document.getElementById('ev-date').value.trim();
+  if (!title) return alert('Enter a title first.');
+  try {
+    const cfg = await fetch('data/config.json').then(r=>r.json());
+    if (!cfg.cloneFormEndpoint) return alert('Set cloneFormEndpoint in data/config.json');
+    const r = await fetch(cfg.cloneFormEndpoint, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ title, date })
+    });
+    const j = await r.json();
+    if (j.publicUrl) {
+      document.getElementById('ev-form').value = j.publicUrl;
+      document.getElementById('clone-output').innerHTML =
+        `Form created. <a href="${j.publicUrl}" target="_blank" rel="noopener">Open public form</a> · <a href="${j.editUrl}" target="_blank" rel="noopener">Edit form</a>`;
+      alert('Form cloned and inserted into this event’s Form URL.');
+    } else {
+      alert('Could not clone form: ' + (j.error || 'unknown error'));
+    }
+  } catch (e) {
+    alert('Network error cloning form.');
+  }
+});
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

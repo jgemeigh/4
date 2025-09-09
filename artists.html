@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Artists · Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="card">
+  <h1>Featured Artists</h1>
+  <p>After each performance we spotlight artists with links to their Bandcamp, Linktree, and socials.</p>
+  <div id="artist-list" class="list">Loading…</div>
+</section>
+
+<script>
+fetch('data/events.json').then(r=>r.json()).then(data=>{
+  const items = [];
+  (data.events||[]).forEach(ev => {
+     (ev.artists || []).forEach(a => items.push({event: ev.title, ...a}));
+  });
+  const list = document.getElementById('artist-list');
+  if (!items.length) { list.innerHTML = '<p class="muted">No featured artists yet.</p>'; return; }
+  list.innerHTML = items.map(a => `
+    <div class="list-item">
+      <div class="stack grow">
+        <strong>${a.name}</strong>
+        <div class="muted micro">from ${a.event}</div>
+        ${a.bio ? `<p class="micro">${a.bio}</p>` : ''}
+      </div>
+      <div class="links">
+        ${a.bandcamp ? `<a class="chip" href="${a.bandcamp}" target="_blank" rel="noopener">Bandcamp</a>` : ''}
+        ${a.linktree ? `<a class="chip" href="${a.linktree}" target="_blank" rel="noopener">Linktree</a>` : ''}
+        ${a.website ? `<a class="chip" href="${a.website}" target="_blank" rel="noopener">Site</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+});
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

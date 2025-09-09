@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Calendar · Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="card">
+  <h1>Calendar</h1>
+  <p>All upcoming and past dates. Add to your calendar and never miss a set.</p>
+  <div class="calendar-embed" id="calWrap"><p class="muted">Loading…</p></div>
+</section>
+<script>
+fetch('data/config.json').then(r=>r.json()).then(cfg=>{
+  const src = cfg.calendarEmbedUrl || "https://calendar.google.com/calendar/embed?src=example%40gmail.com&ctz=America%2FChicago";
+  document.getElementById('calWrap').innerHTML = `<iframe src="${src}" style="border:0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>`;
+}).catch(()=>{
+  document.getElementById('calWrap').innerHTML = '<p class="muted">Calendar not configured.</p>';
+});
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

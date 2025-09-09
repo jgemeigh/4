@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Event · Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="card">
+  <div id="event">Loading…</div>
+</section>
+
+<script src="js/lightbox.js"></script>
+<script>
+function qp(key){ return new URLSearchParams(location.search).get(key); }
+const slug = qp('slug');
+const box = document.getElementById('event');
+
+fetch('data/events.json').then(r=>r.json()).then(data=>{
+  const ev = (data.events||[]).find(e => e.slug === slug) || (data.events||[])[0];
+  if (!ev){ box.innerHTML = '<p>Event not found.</p>'; return; }
+  const d = new Date(ev.date);
+  const dateFmt = d.toLocaleString([], { dateStyle:'full', timeStyle:'short' });
+  const artists = (ev.artists||[]).map(a => `
+    <div class="list-item">
+      <div class="grow">
+        <strong>${a.name}</strong>
+        ${a.bio?`<div class="micro muted">${a.bio}</div>`:''}
+      </div>
+      <div class="links">
+        ${a.bandcamp?`<a class="chip" href="${a.bandcamp}" target="_blank">Bandcamp</a>`:''}
+        ${a.linktree?`<a class="chip" href="${a.linktree}" target="_blank">Linktree</a>`:''}
+        ${a.website?`<a class="chip" href="${a.website}" target="_blank">Site</a>`:''}
+      </div>
+    </div>
+  `).join('') || '<p class="muted">Artist details coming soon.</p>';
+
+  const images = (ev.media||[]).filter(m => m.type === 'image');
+  const videos = (ev.media||[]).filter(m => m.type === 'youtube');
+
+  box.innerHTML = `
+    <h1>${ev.title}</h1>
+    <p class="muted">${dateFmt}${ev.venue?` · ${ev.venue}`:''}</p>
+    ${ev.poster ? `<img class="poster" src="${ev.poster}" alt="${ev.title} poster">` : ''}
+    ${ev.description?`<p>${ev.description}</p>`:''}
+
+    ${videos.length ? `<h2>Recap Video</h2>
+      <div class="media-grid">
+        ${videos.map(v => `<iframe width="100%" height="215" src="https://www.youtube.com/embed/${v.id}" frameborder="0" allowfullscreen></iframe>`).join('')}
+      </div>` : ''}
+
+    ${images.length ? `<h2>Photo Gallery</h2>
+      <div class="media-grid">
+        ${images.map(i => `<a href="${i.src}" class="lb" data-lightbox="${i.src}">
+            <img src="${i.src}" alt="${i.label||''}" class="poster">
+          </a>`).join('')}
+      </div>` : ''}
+
+    <h2>Artists</h2>
+    ${artists}
+  `;
+
+  Lightbox.bindAll('.lb');
+});
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

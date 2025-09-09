@@ -1,0 +1,111 @@
+{
+  "events": [
+    {
+      "slug": "fall-2025",
+      "title": "Sound.wav Sessions \u2014 Fall 2025",
+      "date": "2025-10-18T19:00:00-05:00",
+      "venue": "Liederkranz Ballroom, Grand Island, NE",
+      "status": "open",
+      "formUrl": "https://docs.google.com/forms/d/e/EXAMPLE_PERFORMER_FORM/viewform",
+      "poster": "",
+      "description": "Quarterly showcase of electronic, hip-hop, and experimental sets. Slots limited.",
+      "artists": [
+        {
+          "name": "DJ Example"
+        }
+      ],
+      "media": []
+    },
+    {
+      "slug": "2024-07-26-jackson",
+      "title": "Sound.wav Sessions \u2014 Pop-up at 1125 Jackson",
+      "date": "2024-07-26T18:00:00-05:00",
+      "venue": "1125 Jackson St",
+      "status": "closed",
+      "poster": "assets/archive/2024-07-26-jackson.jpg",
+      "description": "Pop-up set with live beats and DJ sets.",
+      "artists": [
+        {
+          "name": "copperkid"
+        },
+        {
+          "name": "dj rugburn"
+        },
+        {
+          "name": "revelgy"
+        },
+        {
+          "name": "kamakauzzy"
+        },
+        {
+          "name": "jay phatty"
+        },
+        {
+          "name": "ahrs ahrtis"
+        },
+        {
+          "name": "blue eyes white dragon"
+        }
+      ],
+      "media": [
+        {
+          "type": "youtube",
+          "id": "YOUTUBE_RECAP_ID_HERE"
+        },
+        {
+          "type": "image",
+          "src": "assets/photos/2024-07-26/shot-1.jpg",
+          "label": "crowd"
+        },
+        {
+          "type": "image",
+          "src": "assets/photos/2024-07-26/shot-2.jpg",
+          "label": "stage"
+        }
+      ]
+    },
+    {
+      "slug": "2024-05-18-project-project",
+      "title": "Sound.wav Sessions \u2014 May 18 at Project Project",
+      "date": "2024-05-18T20:00:00-05:00",
+      "venue": "Project Project, 1818 Vinton, Omaha",
+      "status": "closed",
+      "poster": "assets/archive/2024-05-18-project-project.jpg",
+      "artists": [
+        {
+          "name": "ELECTRA"
+        },
+        {
+          "name": "CHILL MAC"
+        },
+        {
+          "name": "MARCEY YATES"
+        },
+        {
+          "name": "KEERAN WOODE"
+        },
+        {
+          "name": "TOXIC THROB"
+        },
+        {
+          "name": "ALEX JACOBSEN"
+        },
+        {
+          "name": "OGI KIDD"
+        },
+        {
+          "name": "SOULITIFIED"
+        },
+        {
+          "name": "LITE POLE"
+        }
+      ],
+      "media": [
+        {
+          "type": "youtube",
+          "id": "YOUTUBE_RECAP_ID_0518"
+        }
+      ]
+    }
+  ]
+}

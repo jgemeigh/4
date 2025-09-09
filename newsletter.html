@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Newsletter · Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="card">
+  <h1>Newsletter</h1>
+  <p>Get quarterly show announcements, calls for performers, and community updates.</p>
+  <div class="form-embed" id="signupWrap"><p class="muted">Loading…</p></div>
+</section>
+
+<section id="unsubscribe" class="card">
+  <h2>Unsubscribe</h2>
+  <p>Use the form below to remove your email from our list.</p>
+  <div class="form-embed" id="unsubWrap"><p class="muted">Loading…</p></div>
+  <p class="micro muted">Tip: We can hook this to a Google Sheet so unsubscribes are automatic.</p>
+</section>
+
+<script>
+fetch('data/config.json').then(r=>r.json()).then(cfg=>{
+  const news = cfg.newsletterFormUrl || "https://docs.google.com/forms/d/e/EXAMPLE_NEWSLETTER_FORM/viewform?embedded=true";
+  const unsub = cfg.unsubscribeFormUrl || "https://docs.google.com/forms/d/e/EXAMPLE_UNSUBSCRIBE_FORM/viewform?embedded=true";
+  document.getElementById('signupWrap').innerHTML = `<iframe src="${news}" width="100%" height="900" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`;
+  document.getElementById('unsubWrap').innerHTML = `<iframe src="${unsub}" width="100%" height="700" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>`;
+}).catch(()=>{
+  document.getElementById('signupWrap').innerHTML = '<p class="muted">Newsletter form not configured.</p>';
+  document.getElementById('unsubWrap').innerHTML = '<p class="muted">Unsubscribe form not configured.</p>';
+});
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111111"/>
+  <title>Sound.wav Sessions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <meta name="description" content="Sound.wav Sessions — Quarterly concert series and community.">
+  <link rel="icon" href="assets/logo.svg">
+</head>
+<body>
+<div class="wrap">
+<header class="site-header">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <img src="assets/logo.svg" alt="Sound.wav Sessions logo" class="logo">
+      <span class="brand-text">sound.wav sessions</span>
+    </a>
+  </div>
+  <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="site-nav" data-collapsible>
+    <a href="index.html">Home</a>
+    <a href="calendar.html">Calendar</a>
+    <a href="performers.html">Performers</a>
+    <a href="newsletter.html">Newsletter</a>
+    <a href="artists.html">Artists</a>
+    <a href="archive.html">Archive</a>
+  </nav>
+</header>
+<main class="content">
+
+<section class="hero">
+  <h1>Quarterly shows. Community energy.</h1>
+  <p>Welcome to <strong>Sound.wav Sessions</strong> — an artist-forward concert series. Join the newsletter, sign up to perform, or catch past sets.</p>
+  <div class="cta-row">
+    <a class="btn" href="performers.html">Sign up to Perform</a>
+    <a class="btn ghost" href="newsletter.html">Join Newsletter</a>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Next Event</h2>
+  <div id="next-event" class="event-card">
+    <p>Loading next event…</p>
+  </div>
+  <a class="link" href="calendar.html">See the full calendar →</a>
+</section>
+
+<section class="grid two">
+  <a class="card link-card" href="artists.html">
+    <h3>Featured Artists</h3>
+    <p>Explore performers and follow their work.</p>
+  </a>
+  <a class="card link-card" href="archive.html">
+    <h3>Footage & Posters</h3>
+    <p>Watch clips, view posters, and revisit past shows.</p>
+  </a>
+</section>
+
+<script>
+fetch('data/events.json')
+ .then(r => r.json())
+ .then(data => { 
+   const upcoming = (data.events || []).filter(e => e.status !== 'closed')
+     .sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+   const box = document.getElementById('next-event');
+   if (!upcoming) {
+     box.innerHTML = '<p>No upcoming events yet. Join the newsletter for updates.</p>';
+     return;
+   }
+   const d = new Date(upcoming.date);
+   const dateFmt = d.toLocaleString([], { dateStyle:'full', timeStyle:'short' });
+   box.innerHTML = `
+     <div class="stack">
+       <h3>${upcoming.title}</h3>
+       <p class="muted">${dateFmt} · ${upcoming.venue || ''}</p>
+       <p>${upcoming.description || ''}</p>
+       ${upcoming.status === 'open' && upcoming.formUrl ? `<a class="btn" href="${upcoming.formUrl}" target="_blank" rel="noopener">Apply to Perform</a>` : '<span class="badge">Signups closed</span>'}
+       <a class="link" href="performance.html?slug=${encodeURIComponent(upcoming.slug)}">Event details →</a>
+     </div>`;
+ });
+</script>
+
+</main>
+<footer class="site-footer">
+  <p>© 2025 Sound.wav Sessions · <a href="newsletter.html#unsubscribe">Unsubscribe</a> · <a href="admin.html">Admin</a></p>
+</footer>
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>
